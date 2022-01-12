@@ -1,3 +1,4 @@
+import { GET_TODOS } from './TodoList'
 import { gql, useMutation } from '@apollo/client'
 import { useState } from 'react'
 
@@ -19,7 +20,16 @@ const AddTodo = () => {
   const onSubmit = (e) => {
     e.preventDefault();
     addTodo({
-      variables: {title}, 
+      variables: { title },
+      update: (cache, { data }) => {
+        const existingTodos = cache.readQuery({
+          query: GET_TODOS,
+        });
+        cache.writeQuery({
+          query: GET_TODOS,
+          data: { todos: [data.insert_todos_one, ...existingTodos.todos] },
+        });
+      },
     });
   };
 
